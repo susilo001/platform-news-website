@@ -46,13 +46,57 @@ test("demo editor cannot save", async ({ page }) => {
     page.getByRole("textbox", { name: "Article title", exact: true }),
   ).toHaveValue("A new perspective");
 });
-test("responsive pages do not overflow", async ({ page }) => {
-  for (const route of ["/", "/search", "/demo", "/demo/articles/new"]) {
-    await page.goto(route);
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
-      ),
-    ).toBe(true);
+test("editor waits for hydration before accepting changes", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const assets = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/_next/static/**", async (route) => {
+    await assets;
+    await route.continue();
+  });
+  const title = page.getByRole("textbox", {
+    name: "Article title",
+    exact: true,
+  });
+  try {
+    await page.goto("/demo/articles/new", { waitUntil: "commit" });
+    await expect(title).toBeDisabled();
+  } finally {
+    release();
   }
+  await expect(title).toBeEnabled();
+  await title.fill("A headline that survives editor initialization");
+  await page
+    .getByRole("textbox", { name: "Article summary", exact: true })
+    .fill("A thoughtful summary for a new story.");
+  await page
+    .getByLabel("Article body", { exact: true })
+    .fill("The body is ready for writing.");
+  await expect(title).toHaveValue(
+    "A headline that survives editor initialization",
+  );
+  await expect(page.getByRole("button", { name: "Save draft" })).toBeDisabled();
 });
+for (const route of ["/", "/search", "/demo", "/demo/articles/new"]) {
+  test(`responsive page does not overflow: ${route}`, async ({ page }) => {
+    await page.goto(route);
+    const dimensions = await page.evaluate(() => ({
+      document: document.documentElement.scrollWidth,
+      viewport: window.innerWidth,
+    }));
+    expect(
+      dimensions.document,
+      `${route} exceeds the viewport: ${JSON.stringify(dimensions)}`,
+    ).toBeLessThanOrEqual(dimensions.viewport + 1);
+    if (route === "/demo" && page.viewportSize()!.width < 650) {
+      const table = page.locator(".table-scroll");
+      // Wide data tables keep their own horizontal scrolling instead of widening the document.
+      expect(
+        await table.evaluate((el) => el.scrollWidth > el.clientWidth),
+      ).toBe(true);
+    }
+  });
+}

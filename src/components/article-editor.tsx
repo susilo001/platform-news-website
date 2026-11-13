@@ -100,6 +100,8 @@ export function ArticleEditor({
       attributes: { class: "tiptap-content", "aria-label": "Article body" },
     },
   });
+  // Server-rendered controls must stay disabled until hydration installs event handlers.
+  const canWrite = editor !== null && (editable || demo);
   const update = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
   const run = (
@@ -174,7 +176,7 @@ export function ArticleEditor({
           )}
           <button
             className="button"
-            disabled={pending || !editable}
+            disabled={pending || !editable || !editor}
             onClick={save}
           >
             <Save size={15} />
@@ -202,7 +204,7 @@ export function ArticleEditor({
             placeholder="Give your story a headline…"
             value={form.title}
             onChange={(e) => update("title", e.target.value)}
-            disabled={!editable && !demo}
+            disabled={!canWrite}
           />
           <textarea
             aria-label="Article summary"
@@ -210,7 +212,7 @@ export function ArticleEditor({
             placeholder="Set the scene with a short, compelling summary…"
             value={form.summary}
             onChange={(e) => update("summary", e.target.value)}
-            disabled={!editable && !demo}
+            disabled={!canWrite}
           />
           <div className="editor-toolbar">
             {[
@@ -272,7 +274,7 @@ export function ArticleEditor({
                 type="button"
                 title={b.title}
                 aria-label={b.title}
-                disabled={!editable && !demo}
+                disabled={!canWrite}
                 onClick={b.action}
               >
                 <b.icon size={17} />
@@ -308,7 +310,7 @@ export function ArticleEditor({
                 Category
                 <select
                   value={form.categoryId}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("categoryId", e.target.value)}
                 >
                   <option value="">Select a category</option>
@@ -324,7 +326,7 @@ export function ArticleEditor({
                   <input
                     type="checkbox"
                     checked={form.featured ?? false}
-                    disabled={!editable && !demo}
+                    disabled={!canWrite}
                     onChange={(e) => update("featured", e.target.checked)}
                   />{" "}
                   Feature on homepage
@@ -334,7 +336,7 @@ export function ArticleEditor({
                 URL slug
                 <input
                   value={form.slug}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("slug", e.target.value)}
                   placeholder="your-story-headline"
                 />
@@ -343,7 +345,7 @@ export function ArticleEditor({
                 Tags
                 <input
                   value={form.tags}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("tags", e.target.value)}
                   placeholder="Climate, Cities, Design"
                 />
@@ -353,7 +355,7 @@ export function ArticleEditor({
                 <select
                   multiple
                   value={form.coauthorIds}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) =>
                     update(
                       "coauthorIds",
@@ -394,7 +396,7 @@ export function ArticleEditor({
                 Choose from media library
                 <select
                   value={form.heroMediaId}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("heroMediaId", e.target.value)}
                 >
                   <option value="">Select an image</option>
@@ -422,7 +424,7 @@ export function ArticleEditor({
                 SEO title
                 <input
                   value={form.seoTitle}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("seoTitle", e.target.value)}
                   placeholder="Defaults to your headline"
                 />
@@ -431,7 +433,7 @@ export function ArticleEditor({
                 Meta description
                 <textarea
                   value={form.seoDescription}
-                  disabled={!editable && !demo}
+                  disabled={!canWrite}
                   onChange={(e) => update("seoDescription", e.target.value)}
                   placeholder="Defaults to your summary"
                 />
