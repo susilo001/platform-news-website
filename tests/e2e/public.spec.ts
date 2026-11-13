@@ -86,6 +86,15 @@ for (const route of ["/", "/search", "/demo", "/demo/articles/new"]) {
     const dimensions = await page.evaluate(() => ({
       document: document.documentElement.scrollWidth,
       viewport: window.innerWidth,
+      outside: [...document.querySelectorAll("body *")]
+        .map((el) => ({
+          tag: el.tagName,
+          cls: el.getAttribute("class"),
+          right: Math.round(el.getBoundingClientRect().right),
+          width: Math.round(el.getBoundingClientRect().width),
+        }))
+        .filter((el) => el.right > window.innerWidth + 1)
+        .slice(0, 20),
     }));
     expect(
       dimensions.document,

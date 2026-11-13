@@ -1119,6 +1119,8 @@ p {
   gap: 24px;
 }
 .panel {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid #e0e4d8;
   background: white;
   border-radius: 5px;
@@ -1151,6 +1153,9 @@ p {
   gap: 7px;
 }
 .table-scroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
 }
 .cms-table {
