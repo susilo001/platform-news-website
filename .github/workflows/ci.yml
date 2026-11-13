@@ -1,0 +1,40 @@
+name: Verify news platform
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: news
+          POSTGRES_PASSWORD: test_only
+          POSTGRES_DB: news_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U news -d news_test" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://news:test_only@localhost:5432/news_test
+      TEST_DATABASE_URL: postgresql://news:test_only@localhost:5432/news_test
+      AUTH_SECRET: ci-only-secret-never-use-in-production-32
+      DEMO_MODE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run db:migrate
+      - run: npm audit --audit-level=moderate
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: test-results/
