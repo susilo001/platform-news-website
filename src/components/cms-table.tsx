@@ -33,9 +33,7 @@ export function CmsTable({
             <th>Status</th>
             <th>Author</th>
             <th>Last updated</th>
-            <th>
-              <span className="sr-only">Open</span>
-            </th>
+            <th aria-label="Open" />
           </tr>
         </thead>
         <tbody>

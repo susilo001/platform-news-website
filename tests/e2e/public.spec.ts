@@ -48,25 +48,29 @@ test("demo editor cannot save", async ({ page }) => {
 });
 test("editor waits for hydration before accepting changes", async ({
   page,
+  browser,
 }) => {
-  let release!: () => void;
-  const assets = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  await page.route("**/_next/static/**", async (route) => {
-    await assets;
-    await route.continue();
-  });
+  // With JavaScript off, only the server-rendered form is available. It must not accept edits.
+  const staticContext = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const staticPage = await staticContext.newPage();
+    await staticPage.goto(
+      `${test.info().project.use.baseURL}/demo/articles/new`,
+    );
+    await expect(
+      staticPage.locator('input[aria-label="Article title"]'),
+    ).toBeDisabled();
+    await expect(
+      staticPage.locator('textarea[aria-label="Article summary"]'),
+    ).toBeDisabled();
+  } finally {
+    await staticContext.close();
+  }
+  await page.goto("/demo/articles/new");
   const title = page.getByRole("textbox", {
     name: "Article title",
     exact: true,
   });
-  try {
-    await page.goto("/demo/articles/new", { waitUntil: "commit" });
-    await expect(title).toBeDisabled();
-  } finally {
-    release();
-  }
   await expect(title).toBeEnabled();
   await title.fill("A headline that survives editor initialization");
   await page
