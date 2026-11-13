@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  JOURNALIST
+}
+
+enum ArticleStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  UNPUBLISHED
+}
+
+model User {
+  id         String            @id @default(cuid())
+  email      String            @unique
+  name       String
+  role       Role              @default(JOURNALIST)
+  active     Boolean           @default(true)
+  publicSlug String            @unique
+  bio        String            @default("")
+  createdAt  DateTime          @default(now())
+  articles   Article[]         @relation("LeadAuthor")
+  bylines    ArticleAuthor[]
+  revisions  ArticleRevision[]
+  reviews    EditorialReview[]
+  media      Media[]
+  audit      AuditEvent[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String    @default("")
+  articles    Article[]
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String
+  slug     String       @unique
+  articles ArticleTag[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+}
+
+model Article {
+  id                  String            @id @default(cuid())
+  slug                String            @unique
+  status              ArticleStatus     @default(DRAFT)
+  leadAuthorId        String
+  leadAuthor          User              @relation("LeadAuthor", fields: [leadAuthorId], references: [id])
+  categoryId          String
+  category            Category          @relation(fields: [categoryId], references: [id])
+  deletedAt           DateTime?
+  featured            Boolean           @default(false)
+  version             Int               @default(0)
+  currentRevisionId   String?           @unique
+  currentRevision     ArticleRevision?  @relation("CurrentRevision", fields: [currentRevisionId], references: [id])
+  approvedRevisionId  String?
+  approvedRevision    ArticleRevision?  @relation("ApprovedRevision", fields: [approvedRevisionId], references: [id])
+  publishedRevisionId String?
+  publishedRevision   ArticleRevision?  @relation("PublishedRevision", fields: [publishedRevisionId], references: [id])
+  publishedAt         DateTime?
+  scheduledAt         DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  authors             ArticleAuthor[]
+  tags                ArticleTag[]
+  revisions           ArticleRevision[] @relation("ArticleRevisions")
+  reviews             EditorialReview[]
+  jobs                PublicationJob[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([categoryId, status, publishedAt(sort: Desc)])
+}
+
+model ArticleAuthor {
+  articleId   String
+  userId      String
+  bylineOrder Int     @default(0)
+  isLead      Boolean @default(false)
+  article     Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user        User    @relation(fields: [userId], references: [id])
+
+  @@id([articleId, userId])
+}
+
+model ArticleRevision {
+  id             String            @id @default(cuid())
+  articleId      String
+  version        Int
+  title          String
+  summary        String
+  bodyJson       Json
+  bodyText       String
+  heroMediaId    String?
+  heroMedia      Media?            @relation(fields: [heroMediaId], references: [id])
+  seoTitle       String            @default("")
+  seoDescription String            @default("")
+  createdBy      String
+  author         User              @relation(fields: [createdBy], references: [id])
+  createdAt      DateTime          @default(now())
+  article        Article           @relation("ArticleRevisions", fields: [articleId], references: [id])
+  currentFor     Article?          @relation("CurrentRevision")
+  approvedFor    Article[]         @relation("ApprovedRevision")
+  publishedFor   Article[]         @relation("PublishedRevision")
+  reviews        EditorialReview[]
+  jobs           PublicationJob[]
+
+  @@unique([articleId, version])
+}
+
+model Media {
+  id         String            @id @default(cuid())
+  storageKey String            @unique
+  url        String
+  mimeType   String
+  sizeBytes  Int
+  width      Int
+  height     Int
+  altText    String
+  uploadedBy String
+  uploader   User              @relation(fields: [uploadedBy], references: [id])
+  createdAt  DateTime          @default(now())
+  revisions  ArticleRevision[]
+}
+
+model EditorialReview {
+  id         String          @id @default(cuid())
+  articleId  String
+  revisionId String
+  reviewerId String
+  decision   String
+  comment    String
+  createdAt  DateTime        @default(now())
+  article    Article         @relation(fields: [articleId], references: [id])
+  revision   ArticleRevision @relation(fields: [revisionId], references: [id])
+  reviewer   User            @relation(fields: [reviewerId], references: [id])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  entityType String
+  entityId   String
+  action     String
+  metadata   Json
+  createdAt  DateTime @default(now())
+}
+
+model PublicationJob {
+  id             String          @id @default(cuid())
+  articleId      String
+  revisionId     String
+  dueAt          DateTime
+  state          String          @default("PENDING")
+  attempts       Int             @default(0)
+  idempotencyKey String          @unique
+  article        Article         @relation(fields: [articleId], references: [id])
+  revision       ArticleRevision @relation(fields: [revisionId], references: [id])
+
+  @@index([state, dueAt])
+}
+
+model OutboxEvent {
+  id          String    @id @default(cuid())
+  aggregateId String
+  eventType   String
+  payload     Json
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+  attempts    Int       @default(0)
+}
+
+model SiteSetting {
+  key       String @id
+  valueJson Json
+  updatedBy String
+}
+
+model RateLimit {
+  key      String   @id
+  count    Int
+  resetsAt DateTime
+}
