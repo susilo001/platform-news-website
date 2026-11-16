@@ -13,6 +13,12 @@ With no `DATABASE_URL` in development, public pages use **clearly labelled sampl
 
 **Node.js 22.12+ required.** No database is needed to build the app or explore the demo.
 
+## Deploy a free Render demo
+
+The root `render.yaml` provisions one Free Node web service in Singapore with `DEMO_MODE=true`. It creates no database, object store, or paid worker. Connect your Render account, create a Blueprint from this repository, and select the branch containing the configuration (`main` after merge). See [Render setup](docs/render.md).
+
+The production commands are `npm run build:render` and `npm run start:render`. They package Next.js standalone assets correctly and use Render’s assigned port. The default public URL comes from `RENDER_EXTERNAL_URL`; set `SITE_URL` when using a custom domain.
+
 ## Start a real newsroom
 
 1. Copy `.env.example` to `.env`. Set `DEMO_MODE=false`.
