@@ -1,0 +1,23 @@
+# Deploy the branch selected when creating the Blueprint.
+# This provisions only the free, read-only demo: no database, storage, or worker.
+services:
+  - type: web
+    name: platform-news-demo
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --include=dev && npm run build:render
+    startCommand: npm run start:render
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: DEMO_MODE
+        value: "true"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
