@@ -67,7 +67,31 @@ If this service is managed by a Blueprint, update its source of truth so a futur
 
 ## 5. Deploy the prepared code
 
-After merging the manual-publishing setup PR, select `main` in the existing service's Settings. Set:
+Check the runtime badge at the top of the Render service before editing commands.
+
+### Existing Docker service
+
+If the badge says **Docker**, there is no Build Command or Start Command field. Render builds the root `Dockerfile`. After merging the Docker CMS startup fix, use these settings on the existing service:
+
+| Setting                        | Value                            |
+| ------------------------------ | -------------------------------- |
+| Branch                         | `main`                           |
+| Dockerfile Path                | `./Dockerfile`                   |
+| Docker Build Context Directory | `.`                              |
+| Docker Command                 | Leave blank (uses the image CMD) |
+| Pre-Deploy Command             | Leave blank on Free              |
+| Health Check Path              | `/api/health`                    |
+| Instance Type                  | Free                             |
+
+The image builds without database credentials. At container startup, when `DEMO_MODE` is not `true`, it runs committed migrations and idempotently seeds the admin/categories using runtime environment variables, then starts `node server.js`. Migration or seed failure stops startup; inspect Render logs for the failing step. With `DEMO_MODE=true`, database preparation is skipped.
+
+Do not enter `npm run start:render` as the Docker Command: the Docker image puts `server.js` at `/app/server.js`, not under `.next/standalone`. A `node server.js` override would bypass database preparation; clear the override to use the new CMD. Do not pass database passwords or OAuth secrets as Docker build arguments.
+
+Choose **Manual Deploy → Deploy latest commit** after saving the environment. Future migrations must stay backward-compatible with the old instance during rollout. Run only one deployment at a time; the free service may need additional time for initial database preparation. Keep `SEED_SAMPLE_DRAFTS` unset.
+
+### Native Node service
+
+If the badge says **Node**, set these commands instead:
 
 ```text
 Build Command: npm ci --include=dev && npm run build:cms
@@ -76,7 +100,7 @@ Health Check Path: /api/health
 Instance Type: Free
 ```
 
-`build:cms` generates Prisma Client, applies committed migrations, idempotently seeds the admin/categories, and builds the standalone app. Free Render services lack the paid pre-deploy release task, so this small-project setup applies migrations during build. Builds may mutate the database even if a later step fails: use backward-compatible migrations and run one deployment at a time. Never use `prisma migrate reset` on the hosted database. Keep `SEED_SAMPLE_DRAFTS` unset.
+`build:cms` generates Prisma Client, applies committed migrations, idempotently seeds the admin/categories, and builds the standalone app. On this native setup migrations run during build because Free lacks pre-deploy commands. A failed later build step can still leave migrations applied. Never use `prisma migrate reset` on the hosted database.
 
 Set `DEMO_MODE=false` and redeploy. The public website initially has no real stories; the earlier demo stories are fixtures, not database content. Upload a licensed hero image, create a draft, submit for review, approve, and **Publish now**. A single initial admin can approve their own article only with an explicit editorial reason; invite another editor for normal review.
 

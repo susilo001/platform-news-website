@@ -18,6 +18,8 @@ If you deployed the setup branch before merge, change the service and Blueprint 
 
 ## Equivalent manual web service settings
 
+These settings are for the **Node** runtime. If your existing service shows a **Docker** badge, there is no Build Command field; follow the [Docker CMS instructions](free-cms.md#existing-docker-service).
+
 | Setting       | Value                                            |
 | ------------- | ------------------------------------------------ |
 | Type          | Web Service                                      |
