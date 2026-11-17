@@ -31,6 +31,31 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build:render
+      - name: Build Docker web image
+        run: docker build -t newsroom-ci .
+      - name: Smoke test Docker CMS startup
+        run: |
+          docker run -d --network host --name newsroom-ci \
+            -e DATABASE_URL -e AUTH_SECRET -e DEMO_MODE=false \
+            -e ADMIN_EMAIL=docker-admin@example.test \
+            -e AUTH_GOOGLE_ID=ci-placeholder -e AUTH_GOOGLE_SECRET=ci-placeholder \
+            -e PREVIEW_SECRET=ci-only-preview-secret-never-use-in-production \
+            -e AUTH_URL=http://localhost:3062 -e SITE_URL=http://localhost:3062 \
+            -e SCHEDULING_ENABLED=false -e PORT=3062 newsroom-ci
+          trap 'docker logs newsroom-ci; docker rm -f newsroom-ci' EXIT
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost:3062/api/health > /tmp/news-health.json; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          test "$ready" = true
+          node -e 'const h=require("/tmp/news-health.json"); if(h.status!=="ok") process.exit(1)'
+          curl --fail --silent http://localhost:3062/cms/login -o /tmp/news-login.html
+          grep -q 'Continue with Google' /tmp/news-login.html
+          docker exec newsroom-ci npm run db:seed
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
