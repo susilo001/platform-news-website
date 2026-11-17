@@ -6,3 +6,5 @@ export const siteUrl =
   process.env.RENDER_EXTERNAL_URL ||
   "http://localhost:3000";
 export const pageSize = 9;
+// Disable when deploying without a continuously running publishing worker.
+export const schedulingEnabled = process.env.SCHEDULING_ENABLED !== "false";

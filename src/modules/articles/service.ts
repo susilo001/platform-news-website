@@ -1,6 +1,7 @@
 import "server-only";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { schedulingEnabled } from "@/lib/config";
 import { articleInput, parseBody, bodyText } from "./content";
 import {
   canEdit,
@@ -121,6 +122,10 @@ export async function transitionArticle(
   reason: string,
   dueAt?: Date,
 ) {
+  if (next === "SCHEDULED" && !schedulingEnabled)
+    throw new Error(
+      "Scheduled publishing is disabled. Use Publish now instead.",
+    );
   return db.$transaction(
     async (tx) => {
       const article = await tx.article.findUniqueOrThrow({

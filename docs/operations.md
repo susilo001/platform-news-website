@@ -1,5 +1,7 @@
 # Operations and release gates
 
+For a small deployment without a paid worker, see [CMS with manual publishing](free-cms.md). Set `SCHEDULING_ENABLED=false`; the following worker guidance applies when scheduling is enabled.
+
 ## Infrastructure
 
 Deploy a stateless Next.js Node web service and a separate continuously running worker against the same PostgreSQL database. Store uploads in a private-write/public-read S3 bucket (or a public CDN origin backed by that bucket). No persistent application filesystem is required. Use HTTPS and production OAuth credentials.

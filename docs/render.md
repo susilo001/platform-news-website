@@ -42,6 +42,10 @@ Render free web services sleep after 15 minutes without inbound traffic and may 
 
 This setup is for evaluation. It is not the production newsroom deployment and should not be used to promise availability or scheduled publication.
 
+## Enable a CMS with manual publishing
+
+See [Free CMS setup](free-cms.md) for the existing Render service, Neon, GitHub login, and R2. Set `SCHEDULING_ENABLED=false` when no worker is deployed.
+
 ## Enable the real CMS later
 
 Before changing `DEMO_MODE` to `false`:

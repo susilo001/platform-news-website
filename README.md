@@ -19,6 +19,8 @@ The root `render.yaml` provisions one Free Node web service in Singapore with `D
 
 The production commands are `npm run build:render` and `npm run start:render`. They package Next.js standalone assets correctly and use Render’s assigned port. The default public URL comes from `RENDER_EXTERNAL_URL`; set `SITE_URL` when using a custom domain.
 
+For a small CMS with manual publication and no paid worker, follow [Free CMS setup](docs/free-cms.md).
+
 ## Start a real newsroom
 
 1. Copy `.env.example` to `.env`. Set `DEMO_MODE=false`.
