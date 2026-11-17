@@ -42,7 +42,7 @@ Publication outbox events are durable integration points. The current consumer e
 
 ## Authentication and permissions
 
-Auth.js uses GitHub OAuth with an allowlist of individual staff emails. Staff must be pre-invited by an admin and must have a matching verified GitHub email. No password database or open registration exists. JWT sessions expire after eight hours; each sensitive request re-queries the user to apply deactivation and role changes immediately.
+Auth.js uses Google OAuth with an allowlist of individual staff emails. Staff must be pre-invited by an admin and must have a matching verified Google email. No password database or open registration exists. JWT sessions expire after eight hours; each sensitive request re-queries the user to apply deactivation and role changes immediately.
 
 Every action and media route authenticates independently. Draft ownership belongs to the lead author; credited coauthors do not automatically gain edit access. Editors/admin can edit other drafts. Approval disallows both lead-author and coauthor self-approval; admin override requires a reason. Administrative policies protect staff/role and site-setting changes.
 

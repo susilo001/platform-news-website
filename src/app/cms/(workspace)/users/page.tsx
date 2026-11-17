@@ -47,7 +47,7 @@ export default async function Users() {
             <input name="name" required minLength={2} maxLength={80} />
           </label>
           <label>
-            Verified GitHub email
+            Verified Google email
             <input type="email" name="email" required />
           </label>
           <label>

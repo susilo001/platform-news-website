@@ -6,7 +6,7 @@ async function main() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   if (!email || email.endsWith("@example.com"))
     throw new Error(
-      "Set ADMIN_EMAIL to your verified GitHub email before seeding.",
+      "Set ADMIN_EMAIL to your verified Google email before seeding.",
     );
   const admin = await db.user.upsert({
     where: { email },
@@ -25,7 +25,7 @@ async function main() {
       update: {},
     });
   console.info(
-    `Admin and categories ready. No articles were published. Sign in using the verified GitHub email configured in ADMIN_EMAIL.`,
+    `Admin and categories ready. No articles were published. Sign in using the verified Google email configured in ADMIN_EMAIL.`,
   );
   if (process.env.SEED_SAMPLE_DRAFTS === "true") {
     for (const s of demoStories.slice(0, 3)) {

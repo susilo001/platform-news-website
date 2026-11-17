@@ -43,7 +43,7 @@ export default async function Login({
         </p>
         {error && (
           <div className="notice error" role="alert">
-            Sign-in was unsuccessful. Use the verified GitHub email invited by
+            Sign-in was unsuccessful. Use the verified Google email invited by
             your publication admin.
           </div>
         )}
@@ -51,16 +51,16 @@ export default async function Login({
           <form
             action={async () => {
               "use server";
-              await signIn("github", { redirectTo: "/cms" });
+              await signIn("google", { redirectTo: "/cms" });
             }}
           >
             <button className="button">
-              Continue with GitHub <ArrowUpRight size={17} />
+              Continue with Google <ArrowUpRight size={17} />
             </button>
           </form>
         ) : (
           <div className="notice">
-            Staff sign-in requires the database and GitHub OAuth configuration.
+            Staff sign-in requires the database and Google OAuth configuration.
             The demo workspace is available below.
           </div>
         )}

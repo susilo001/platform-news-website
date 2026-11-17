@@ -32,8 +32,8 @@ For a small CMS with manual publication and no paid worker, follow [Free CMS set
 
    This creates PostgreSQL and a development MinIO bucket. Local credentials in the Compose file are for development only. Services bind to localhost.
 
-3. Create a GitHub OAuth App. Set its callback URL to `http://localhost:3000/api/auth/callback/github`. Put the client ID/secret in `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET`. Use a separate OAuth App for production with the production callback URL.
-4. Generate **two different** random secrets (`openssl rand -base64 32`) for `AUTH_SECRET` and `PREVIEW_SECRET`. Set `ADMIN_EMAIL` to the verified email on the GitHub account that should administer the publication.
+3. Create a Google OAuth web client in Google Auth Platform (Cloud Console). Set its callback URL to `http://localhost:3000/api/auth/callback/google`. Put the client ID/secret in `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`. Use a separate OAuth client for production with the production callback URL.
+4. Generate **two different** random secrets (`openssl rand -base64 32`) for `AUTH_SECRET` and `PREVIEW_SECRET`. Set `ADMIN_EMAIL` to the verified email on the Google account that should administer the publication.
 5. Apply migrations and seed the initial admin/categories:
 
    ```bash
@@ -51,7 +51,7 @@ For a small CMS with manual publication and no paid worker, follow [Free CMS set
    npm run worker
    ```
 
-7. Visit `/cms/login`, sign in with the invited GitHub email, and add journalists/editors in **Team members**. Invitations grant sign-in access; no email is sent. Share the sign-in URL with staff directly.
+7. Visit `/cms/login`, sign in with the invited Google email, and add journalists/editors in **Team members**. Invitations grant sign-in access; no email is sent. Share the sign-in URL with staff directly.
 
 ## Editorial rehearsal
 

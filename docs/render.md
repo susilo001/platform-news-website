@@ -44,7 +44,7 @@ This setup is for evaluation. It is not the production newsroom deployment and s
 
 ## Enable a CMS with manual publishing
 
-See [Free CMS setup](free-cms.md) for the existing Render service, Neon, GitHub login, and R2. Set `SCHEDULING_ENABLED=false` when no worker is deployed.
+See [Free CMS setup](free-cms.md) for the existing Render service, Neon, Google login, and R2. Set `SCHEDULING_ENABLED=false` when no worker is deployed.
 
 ## Enable the real CMS later
 
@@ -52,8 +52,8 @@ Before changing `DEMO_MODE` to `false`:
 
 1. Configure hosted PostgreSQL and set `DATABASE_URL`; apply migrations.
 2. Set `AUTH_URL` and `SITE_URL` to the deployed HTTPS origin.
-3. Create the GitHub OAuth application with callback `https://YOUR-HOST/api/auth/callback/github`; set `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET`.
-4. Set distinct random `AUTH_SECRET` and `PREVIEW_SECRET` values, each at least 32 characters. Set `ADMIN_EMAIL` to the initial admin’s verified GitHub email, then run the seed against the hosted database.
+3. Create the Google OAuth application with callback `https://YOUR-HOST/api/auth/callback/google`; set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
+4. Set distinct random `AUTH_SECRET` and `PREVIEW_SECRET` values, each at least 32 characters. Set `ADMIN_EMAIL` to the initial admin’s verified Google email, then run the seed against the hosted database.
 5. Configure `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and `MEDIA_PUBLIC_URL` for real uploads.
 6. Provision a separate publishing worker if scheduled releases are required. It is not part of this free Blueprint. Without the worker, scheduled jobs will not run and overdue jobs cause the health endpoint to report degradation.
 7. Configure backups and monitoring, then perform the editorial publish/unpublish rehearsal in `docs/operations.md`.

@@ -11,6 +11,6 @@
 
 ## Not represented as verified
 
-Production GitHub OAuth and S3 upload require credentials that are not present in this workspace. No live production deployment, backup/restore drill, external monitoring configuration, load test, Core Web Vitals benchmark, or independent accessibility/security audit has been performed. The committed Playwright desktop/mobile suite is configured for CI; its execution results should be checked in GitHub Actions.
+Production Google OAuth and S3 upload require credentials that are not present in this workspace. No live production deployment, backup/restore drill, external monitoring configuration, load test, Core Web Vitals benchmark, or independent accessibility/security audit has been performed. The committed Playwright desktop/mobile suite is configured for CI; its execution results should be checked in GitHub Actions.
 
 Demo screenshots or a successful build do not establish production readiness. Follow [operations](operations.md) before launch.

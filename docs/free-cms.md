@@ -1,6 +1,6 @@
 # CMS with manual publishing on free tiers
 
-Use the existing `platform-news-website` Render web service with Neon PostgreSQL, GitHub OAuth, and Cloudflare R2. Keep the Render instance on **Free**. No background worker or paid Render database is created by this setup. Provider quotas still apply; R2 bills excess storage/operations and can require billing details. This is a small project setup, not an always-on production availability commitment.
+Use the existing `platform-news-website` Render web service with Neon PostgreSQL, Google OAuth, and Cloudflare R2. Keep the Render instance on **Free**. No background worker or paid Render database is created by this setup. Provider quotas still apply; R2 bills excess storage/operations and can require billing details. This is a small project setup, not an always-on production availability commitment.
 
 ## 1. Create the database
 
@@ -8,17 +8,23 @@ Create a project on [Neon Free](https://neon.com/pricing), preferably near Singa
 
 For the small Node instance, append `connection_limit=5&connect_timeout=30` to the URL query, using `&` when a query already exists. Preserve all existing Neon parameters. Never post the URL in chat or commit it.
 
-## 2. Create the GitHub login application
+## 2. Create the Google login application
 
-In your GitHub account's **Settings → Developer settings → OAuth Apps**, create an OAuth application (separate from the GitHub App used to connect this repository):
+In [Google Cloud Console](https://console.cloud.google.com/), create or select a project, then open **Google Auth Platform**. Configure Branding and Audience for the application. For a personal Gmail account, choose **External**. While the app is in Testing, add each staff Google account as a test user. The CMS invitation list is a separate requirement; a Google test user alone does not grant CMS access.
 
-| Field                      | Value                                                                 |
-| -------------------------- | --------------------------------------------------------------------- |
-| Application name           | Platform News CMS                                                     |
-| Homepage URL               | `https://platform-news-website.onrender.com`                          |
-| Authorization callback URL | `https://platform-news-website.onrender.com/api/auth/callback/github` |
+Under **Clients**, create an OAuth client with application type **Web application**:
 
-Copy the client ID to Render's `AUTH_GITHUB_ID`. Generate a client secret and enter it directly as `AUTH_GITHUB_SECRET`. Set `ADMIN_EMAIL` to the verified email GitHub returns for the account you will sign in with. The seed creates this admin and categories; it does not publish sample articles or change existing staff roles. Other staff must be invited in the CMS before they can sign in.
+| Field                        | Value                                                                 |
+| ---------------------------- | --------------------------------------------------------------------- |
+| Name                         | Platform News CMS                                                     |
+| Authorized JavaScript origin | `https://platform-news-website.onrender.com`                          |
+| Authorized redirect URI      | `https://platform-news-website.onrender.com/api/auth/callback/google` |
+
+Use a separate client for local development with callback `http://localhost:3000/api/auth/callback/google`. Use only the standard `openid`, `email`, and `profile` sign-in scopes; Gmail API access is not needed.
+
+Copy the client ID to Render's `AUTH_GOOGLE_ID` and enter the client secret directly as `AUTH_GOOGLE_SECRET`. Set `ADMIN_EMAIL` to the exact verified email of the Google account you will use. The seed creates this admin and categories; it does not publish sample articles or change existing staff roles. Other staff must be invited in the CMS before they can sign in. Unverified email profiles, uninvited users, and inactive staff cannot sign in.
+
+After merging the Google sign-in PR, replace the old `AUTH_GITHUB_*` variables with `AUTH_GOOGLE_*` in Render. The callback URL must use `/google`. If the initial admin was already seeded under a different email, invite the new Google email through an existing admin session before switching providers; changing `ADMIN_EMAIL` does not remove the old admin. The seed creates a new admin only if that email is absent and does not upgrade existing staff roles. No article database migration is needed for the provider switch.
 
 ## 3. Configure image storage
 
@@ -42,9 +48,9 @@ Open the **existing service → Environment** and set these values. Keep demo mo
 | `SITE_URL`                | `https://platform-news-website.onrender.com`       |
 | `AUTH_URL`                | `https://platform-news-website.onrender.com`       |
 | `DATABASE_URL`            | Neon direct PostgreSQL URL, kept secret            |
-| `ADMIN_EMAIL`             | Your verified GitHub sign-in email                 |
-| `AUTH_GITHUB_ID`          | OAuth application client ID                        |
-| `AUTH_GITHUB_SECRET`      | OAuth application client secret                    |
+| `ADMIN_EMAIL`             | Your verified Google sign-in email                 |
+| `AUTH_GOOGLE_ID`          | OAuth application client ID                        |
+| `AUTH_GOOGLE_SECRET`      | OAuth application client secret                    |
 | `AUTH_SECRET`             | A unique, random secret of at least 32 characters  |
 | `PREVIEW_SECRET`          | A separate random secret of at least 32 characters |
 | `S3_ENDPOINT`             | The bucket's S3 API endpoint from Cloudflare       |
@@ -77,7 +83,7 @@ Set `DEMO_MODE=false` and redeploy. The public website initially has no real sto
 ## 6. Verify and maintain
 
 - `/api/health` should return HTTP 200 with `status: ok`; `demo` means demo mode is still enabled.
-- Open `/cms/login`, sign in with the seeded GitHub account, and confirm the CMS loads.
+- Open `/cms/login`, sign in with the seeded Google account, and confirm the CMS loads.
 - Upload an image with alt text and verify its public URL loads.
 - Publish a real article and confirm the homepage, category, search, and direct article URL show it. Unpublish and confirm those surfaces hide it.
 - Confirm scheduling controls are absent. The server rejects scheduling requests when `SCHEDULING_ENABLED=false`; Publish now and Unpublish still use the normal approval and authorization checks.

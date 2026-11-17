@@ -10,7 +10,7 @@ Run `npm run db:migrate` once as a release task. The initial schema includes rev
 
 ## Configuration
 
-Required live startup values: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `SITE_URL`, and `PREVIEW_SECRET`. Configure `AUTH_URL` to the exact canonical HTTPS origin. Configure `S3_*` and `MEDIA_PUBLIC_URL` before enabling uploads. For self-hosted multi-instance builds, use a stable shared `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` as described by Next.js, supplied during builds through your secrets manager.
+Required live startup values: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `SITE_URL`, and `PREVIEW_SECRET`. Configure `AUTH_URL` to the exact canonical HTTPS origin. Configure `S3_*` and `MEDIA_PUBLIC_URL` before enabling uploads. For self-hosted multi-instance builds, use a stable shared `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` as described by Next.js, supplied during builds through your secrets manager.
 
 Use least-privilege database and object-storage credentials. Set reverse-proxy request limits for `/api/media` to about 9 MB. The application additionally caps streamed upload bytes and file/pixel sizes. Strip untrusted forwarded headers at the edge; public search rate limits rely on the trusted forwarded client IP. Add edge rate limits for OAuth endpoints and public traffic. Application login and media/search counters use PostgreSQL; the worker cleans expired buckets.
 
@@ -35,7 +35,7 @@ Use your own licensed media and real bylines. Demo stories and names are fiction
 
 ## Outstanding production acceptance
 
-1. Run GitHub OAuth sign-in and denied/deactivated-account checks against configured provider credentials.
+1. Run Google OAuth sign-in and denied/deactivated-account checks against configured provider credentials.
 2. Exercise image upload end-to-end against the chosen S3 vendor, including malformed and oversized requests.
 3. Run the Playwright desktop/mobile suite in CI and an accessibility audit on real content.
 4. Measure LCP/INP/CLS on representative mobile connections and traffic; add caching/image delivery improvements based on results.
