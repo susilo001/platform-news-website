@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getActor } from "@/modules/auth/session";
 import { cmsArticle } from "@/modules/articles/cms-queries";
 import { db } from "@/lib/db";
+import { schedulingEnabled } from "@/lib/config";
 import { ArticleEditor } from "./article-editor";
 import type { RichNode } from "@/modules/articles/content";
 export async function EditorPage({ id }: { id?: string }) {
@@ -19,6 +20,7 @@ export async function EditorPage({ id }: { id?: string }) {
   const r = article?.currentRevision;
   return (
     <ArticleEditor
+      schedulingEnabled={schedulingEnabled}
       actor={actor}
       categories={categories}
       media={media}

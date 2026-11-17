@@ -65,6 +65,7 @@ type Props = {
   staff: { id: string; name: string }[];
   actor: { id: string; role: Role };
   demo?: boolean;
+  schedulingEnabled?: boolean;
 };
 export function ArticleEditor({
   initial,
@@ -73,6 +74,7 @@ export function ArticleEditor({
   staff,
   actor,
   demo = false,
+  schedulingEnabled = true,
 }: Props) {
   const [form, setForm] = useState(initial);
   const [message, setMessage] = useState("");
@@ -514,22 +516,31 @@ export function ArticleEditor({
                         >
                           Publish now
                         </button>
-                        <label>
-                          Publish at (your local time)
-                          <input
-                            type="datetime-local"
-                            value={due}
-                            onChange={(e) => setDue(e.target.value)}
-                          />
-                        </label>
-                        <small>Converted to UTC before saving.</small>
-                        <button
-                          disabled={pending || !due}
-                          className="button secondary"
-                          onClick={() => transition("SCHEDULED")}
-                        >
-                          Schedule publication
-                        </button>
+                        {schedulingEnabled ? (
+                          <>
+                            <label>
+                              Publish at (your local time)
+                              <input
+                                type="datetime-local"
+                                value={due}
+                                onChange={(e) => setDue(e.target.value)}
+                              />
+                            </label>
+                            <small>Converted to UTC before saving.</small>
+                            <button
+                              disabled={pending || !due}
+                              className="button secondary"
+                              onClick={() => transition("SCHEDULED")}
+                            >
+                              Schedule publication
+                            </button>
+                          </>
+                        ) : (
+                          <small>
+                            Scheduled publishing is disabled. Use Publish now
+                            when the story is ready.
+                          </small>
+                        )}
                       </>
                     )}
                     {form.status === "SCHEDULED" && (
