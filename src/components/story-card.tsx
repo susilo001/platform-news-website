@@ -1,3 +1,4 @@
+import { readingMinutes } from "@/modules/articles/reading-time";
 import { Photo } from "./photo";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -31,8 +32,7 @@ export function StoryCard({
         <div className="byline">
           {story.authors.map((x) => x.name).join(", ")}
           <span>·</span>
-          {Math.max(3, Math.ceil(JSON.stringify(story.body).length / 1100))} min
-          read
+          {readingMinutes(story.body)} min read
         </div>
       </div>
     </article>
