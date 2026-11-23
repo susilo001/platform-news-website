@@ -1,17 +1,14 @@
 import { test, expect } from "@playwright/test";
 test("reader can discover, read, and search a story", async ({ page }) => {
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", {
-      name: "The cities rewriting the rules of urban living",
-    }),
-  ).toBeVisible();
-  await page
+  const leadStory = page
+    .getByRole("region", { name: "Top stories" })
     .getByRole("heading", {
+      level: 1,
       name: "The cities rewriting the rules of urban living",
-    })
-    .getByRole("link")
-    .click();
+    });
+  await expect(leadStory).toBeVisible();
+  await leadStory.getByRole("link").click();
   await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(
     1,
   );
