@@ -1,3 +1,4 @@
+import { readingMinutes } from "@/modules/articles/reading-time";
 import { Photo } from "@/components/photo";
 import { getSettings } from "@/lib/settings";
 import Link from "next/link";
@@ -94,6 +95,7 @@ export default async function Article({
                 timeZone: settings.timezone,
               })}
             </time>
+            <small> · {readingMinutes(story.body)} min read</small>
             {story.updatedAt !== story.publishedAt && (
               <small>
                 {" "}

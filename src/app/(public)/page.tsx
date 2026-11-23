@@ -1,3 +1,4 @@
+import { readingMinutes } from "@/modules/articles/reading-time";
 import { Photo } from "@/components/photo";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Globe2 } from "lucide-react";
@@ -55,7 +56,8 @@ export default async function Home() {
                     {hero.authors[0]?.name[0]}
                   </span>
                   {hero.authors[0]?.name}
-                  <span>·</span>6 min read
+                  <span>·</span>
+                  {readingMinutes(hero.body)} min read
                 </div>
               </div>
             </article>
@@ -81,7 +83,7 @@ export default async function Home() {
               </Link>
             </div>
             <div className="story-grid">
-              {rest.slice(3, 6).map((s) => (
+              {stories.slice(0, 3).map((s) => (
                 <StoryCard key={s.id} story={s} />
               ))}
             </div>

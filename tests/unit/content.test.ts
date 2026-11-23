@@ -1,4 +1,5 @@
 import { it, expect } from "vitest";
+import { readingMinutes } from "@/modules/articles/reading-time";
 import { parseBody, bodyText } from "@/modules/articles/content";
 import { detectImage } from "@/modules/media/validation";
 it("rejects unknown rich-text nodes", () =>
@@ -58,3 +59,28 @@ it("detects PNG signature", () =>
   ).toBe("image/png"));
 it("requires a root document", () =>
   expect(() => parseBody({ type: "paragraph" })).toThrow());
+
+it("counts visible words across inline formatting and block boundaries", () => {
+  const prefix = "kata ".repeat(199);
+  const formattedWord = {
+    type: "paragraph",
+    content: [
+      { type: "text", text: prefix + "perpus" },
+      { type: "text", text: "takaan", marks: [{ type: "bold" }] },
+    ],
+  };
+  const image = { type: "image", attrs: { alt: "teks alternatif" } };
+  expect(readingMinutes({ type: "doc", content: [formattedWord, image] })).toBe(
+    1,
+  );
+  expect(
+    readingMinutes({
+      type: "doc",
+      content: [
+        formattedWord,
+        { type: "heading", content: [{ type: "text", text: "Arunika" }] },
+      ],
+    }),
+  ).toBe(2);
+  expect(readingMinutes({ type: "doc" })).toBe(1);
+});
